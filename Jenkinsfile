@@ -11,8 +11,6 @@ pipeline {
         stage('Install Dependencies') { 
             steps { 
                 echo 'Installing dependencies...'
-                sh 'python3 -m venv venv'
-                sh 'source venv/bin/activate'
                 sh 'pip install --upgrade pip'
                 sh 'pip install -r requirements.txt'
             } 
