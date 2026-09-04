@@ -8,15 +8,16 @@ pipeline {
             } 
         } 
 
-        stage('Install Dependencies') { 
-            steps { 
-                echo 'Installing dependencies...'   
-                sh 'python3 -m venv venv'
-                sh 'source venv/bin/activate'
-                sh './venv/bin/python3 -m pip install --upgrade pip'                       
-                sh './venv/bin/python3 -m pip install -r requirements.txt'
-            } 
-        } 
+stage('Install Dependencies') { 
+    steps { 
+        echo 'Installing dependencies...'   
+        sh '''
+            python3 -m venv venv
+            ./venv/bin/python3 -m pip install --upgrade pip
+            ./venv/bin/python3 -m pip install -r requirements.txt
+        '''
+    } 
+}
        
     } 
 }
