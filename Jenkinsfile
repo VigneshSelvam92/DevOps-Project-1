@@ -22,7 +22,7 @@ pipeline {
         stage('Run Tests') { 
             steps { 
                 echo 'Running tests...'   
-                sh './venv/bin/python3 -m pytest app/tests/test_app.py --junitxml=results.xml'
+                sh './venv/bin/python3 -m pytest app/test/test_app.py --junitxml=results.xml'
             } 
         }
        
