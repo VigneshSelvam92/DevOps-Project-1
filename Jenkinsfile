@@ -22,7 +22,7 @@ pipeline {
         stage('Run Tests') { 
             steps { 
                 echo 'Running tests...'   
-                sh './venv/bin/python3 -m pytest app/test/test_app.py --con=app --con-report=xml:coverage.xml--junitxml=results.xml'
+                sh './venv/bin/python3 -m pytest app/test/test_app.py --cov=app --cov-report=xml:coverage.xml --junitxml=results.xml'
             } 
         }
        
