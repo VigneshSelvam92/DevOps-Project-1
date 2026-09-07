@@ -44,5 +44,20 @@ pipeline {
                 }
             }
         }
+
+        stage('Docker Build and Push') {
+            steps {
+                script {
+                    def imageName = "vigneshselvam92/devops-project-1"
+                    def timestamp = sh(script: 'date +%Y%m%d_%H%M%S', returnStdout: true).trim()
+                    def imageTag = "build-${env.BUILD_NUMBER}-${timestamp}"
+                    sh "docker build -t ${imageName}:${imageTag} ."
+                    withCredentials([usernamePassword(credentialsId: 'Docker-id', usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
+                        sh "echo $DOCKER_PASSWORD | docker login -u $DOCKER_USERNAME --password-stdin"
+                        sh "docker push ${imageName}:${imageTag}"
+                    }
+                }
+            }
+        }
     } 
 }
