@@ -48,7 +48,7 @@ pipeline {
         stage('Docker Build and Push') {
             steps {
                 script {
-                    def imageName = "vigneshselvam92/devops-project-1"
+                    def imageName = "mydockervicky992/devops-project-1"
                     def timestamp = sh(script: 'date +%Y%m%d_%H%M%S', returnStdout: true).trim()
                     def imageTag = "build-${env.BUILD_NUMBER}-${timestamp}"
                     sh "docker build -t ${imageName}:${imageTag} app/"
