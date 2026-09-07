@@ -22,9 +22,27 @@ pipeline {
         stage('Run Tests') { 
             steps { 
                 echo 'Running tests...'   
-                sh './venv/bin/python3 -m pytest app/test/test_app.py --junitxml=results.xml'
+                sh './venv/bin/python3 -m pytest app/test/test_app.py --con=app --con-report=xml:coverage.xml--junitxml=results.xml'
             } 
         }
        
+        stage('SonarQube Analysis') {
+            steps {
+                withSonarQubeEnv('sonarqube') {
+                    script {
+                        def scannerHome = tool 'SonarQubeScanner'
+                        sh "${scannerHome}/bin/sonar-scanner"
+                    }
+                }
+            }
+        }
+
+        stage('Quality Gate') {
+            steps {
+                timeout(time: 5, unit: 'MINUTES') {
+                    waitForQualityGate abortPipeline: true
+                }
+            }
+        }
     } 
 }
