@@ -10,7 +10,7 @@ VERSION = os.environ.get("APP_VERSION", "v1.0.0")
 @app.route("/")
 def home():
     return jsonify({
-        "message": "Hello from EKS via Jenkins + ArgoCD GitOps!",
+        "message": "Hello from EKS via Jenkins + ArgoCD GitOps! - This is a sample application to demonstrate CI/CD with Jenkins and ArgoCD.",
         "version": VERSION,
         "hostname": socket.gethostname(),
     })
