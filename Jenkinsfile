@@ -149,22 +149,7 @@ pipeline {
                     ]) {
                         sh '''
                             set -e
-                            ssh -i "${UAT_SSH_KEY}" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null "${UAT_SSH_USER}@${UAT_PUBLIC_IP}" <<EOF
-                                sudo apt-get update
-                                sudo apt-get install -y ca-certificates curl gnupg lsb-release
-                                sudo install -m 0755 -d /etc/apt/keyrings
-                                curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
-                                sudo chmod a+r /etc/apt/keyrings/docker.gpg
-                                echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu $(. /etc/os-release && echo $VERSION_CODENAME) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
-                                sudo apt-get update
-                                sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
-                                sudo systemctl enable --now docker
-                                sudo docker --version
-                                sudo docker pull ${IMAGE_NAME}:${IMAGE_TAG}
-                                sudo docker stop myapp || true
-                                sudo docker rm myapp || true
-                                sudo docker run -d --name myapp -p 80:${APP_PORT} -e APP_VERSION="${BUILD_NUMBER}" ${IMAGE_NAME}:${IMAGE_TAG}
-                            EOF
+                            ssh -i "${UAT_SSH_KEY}" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null "${UAT_SSH_USER}@${UAT_PUBLIC_IP}" "bash -lc 'sudo apt-get update && sudo apt-get install -y ca-certificates curl gnupg lsb-release && sudo install -m 0755 -d /etc/apt/keyrings && curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg && sudo chmod a+r /etc/apt/keyrings/docker.gpg && echo \"deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu $(. /etc/os-release && echo $VERSION_CODENAME) stable\" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null && sudo apt-get update && sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin && sudo systemctl enable --now docker && sudo docker --version && sudo docker pull ${IMAGE_NAME}:${IMAGE_TAG} && (sudo docker stop myapp || true) && (sudo docker rm myapp || true) && sudo docker run -d --name myapp -p 80:${APP_PORT} -e APP_VERSION="${BUILD_NUMBER}" ${IMAGE_NAME}:${IMAGE_TAG}'"
                         '''
                     }
                 }
