@@ -175,5 +175,28 @@ pipeline {
         }
     }
 
-    
+    post {
+        always {
+            script {
+                if (env.UAT_INSTANCE_ID) {
+                    withCredentials([string(credentialsId: 'aws-uat-deploy-role-arn', variable: 'UAT_DEPLOY_ROLE_ARN')]) {
+                        sh '''
+                            set +e
+                            set +x
+                            export AWS_DEFAULT_REGION="${AWS_REGION}"
+                            export AWS_PAGER=""
+                            CREDS_JSON=$(aws sts assume-role \
+                                --role-arn "${UAT_DEPLOY_ROLE_ARN}" \
+                                --role-session-name "cleanup-${BUILD_NUMBER}" \
+                                --output json)
+                            export AWS_ACCESS_KEY_ID="$(echo "$CREDS_JSON" | python3 -c 'import json,sys; print(json.load(sys.stdin)["Credentials"]["AccessKeyId"])')"
+                            export AWS_SECRET_ACCESS_KEY="$(echo "$CREDS_JSON" | python3 -c 'import json,sys; print(json.load(sys.stdin)["Credentials"]["SecretAccessKey"])')"
+                            export AWS_SESSION_TOKEN="$(echo "$CREDS_JSON" | python3 -c 'import json,sys; print(json.load(sys.stdin)["Credentials"]["SessionToken"])')"
+                            aws ec2 terminate-instances --instance-ids "${UAT_INSTANCE_ID}" > /dev/null 2>&1 || true
+                        '''
+                    }
+                }
+            }
+        }
+    }
 }
