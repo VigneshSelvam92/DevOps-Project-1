@@ -111,7 +111,7 @@ pipeline {
                                 --output text)
 
                             TAG_NAME="uat-${JOB_NAME}-${BUILD_NUMBER}"
-                            TAG_NAME="${TAG_NAME//[^a-zA-Z0-9_.:/=+=@-]/-}"
+                            TAG_NAME=$(printf '%s' "${TAG_NAME}" | sed 's/[^a-zA-Z0-9_.:/=+=@-]/-/g')
 
                             aws ec2 create-tags \
                                 --resources "${INSTANCE_ID}" \
