@@ -158,15 +158,12 @@ pipeline {
                                 echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu $(. /etc/os-release && echo $VERSION_CODENAME) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
                                 sudo apt-get update
                                 sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
-                                sudo systemctl enable docker
-                                sudo systemctl start docker
-                                sudo usermod -aG docker "${UAT_SSH_USER}"
-                                sudo systemctl restart docker
-                                docker --version
-                                docker pull ${IMAGE_NAME}:${IMAGE_TAG}
-                                docker stop myapp || true
-                                docker rm myapp || true
-                                docker run -d --name myapp -p 80:${APP_PORT} -e APP_VERSION="${BUILD_NUMBER}" ${IMAGE_NAME}:${IMAGE_TAG}
+                                sudo systemctl enable --now docker
+                                sudo docker --version
+                                sudo docker pull ${IMAGE_NAME}:${IMAGE_TAG}
+                                sudo docker stop myapp || true
+                                sudo docker rm myapp || true
+                                sudo docker run -d --name myapp -p 80:${APP_PORT} -e APP_VERSION="${BUILD_NUMBER}" ${IMAGE_NAME}:${IMAGE_TAG}
                             EOF
                         '''
                     }
