@@ -4,6 +4,9 @@ A complete end-to-end **DevOps CI/CD implementation** for a Python Flask applica
 
 The project implements separate deployment strategies for **UAT** and **Production**, providing a practical example of how CI/CD and GitOps can work together.
 
+
+![alt text](image.png)
+
 ---
 
 ## 🏗️ Architecture
