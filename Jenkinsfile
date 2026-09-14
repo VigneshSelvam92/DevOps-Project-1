@@ -105,7 +105,7 @@ pipeline {
                                 --instance-type "${UAT_INSTANCE_TYPE}" \
                                 --key-name "${UAT_KEY_NAME}" \
                                 --security-group-ids "${UAT_SECURITY_GROUP_ID}" \
-                                --subnet-id "${UAT_SUBNET_ID}" \                                
+                                --subnet-id "${UAT_SUBNET_ID}" \
                                 --tag-specifications 'ResourceType=instance,Tags=[{Key=Name,Value=uat-${JOB_NAME}-${BUILD_NUMBER}},{Key=Environment,Value=UAT}]' \
                                 --query 'Instances[0].InstanceId' \
                                 --output text)
