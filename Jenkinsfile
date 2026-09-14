@@ -86,18 +86,19 @@ pipeline {
                     ]) {
                         sh '''
                             set -e
+                            set +x
 
                             export AWS_DEFAULT_REGION="${AWS_REGION}"
+                            export AWS_PAGER=""
 
-                            CREDS=$(aws sts assume-role \
+                            CREDS_JSON=$(aws sts assume-role \
                                 --role-arn "${UAT_DEPLOY_ROLE_ARN}" \
                                 --role-session-name "jenkins-uat-${BUILD_NUMBER}" \
-                                --query 'Credentials.[AccessKeyId,SecretAccessKey,SessionToken]' \
-                                --output text)
+                                --output json)
 
-                            export AWS_ACCESS_KEY_ID="$(echo "$CREDS" | awk '{print $1}')"
-                            export AWS_SECRET_ACCESS_KEY="$(echo "$CREDS" | awk '{print $2}')"
-                            export AWS_SESSION_TOKEN="$(echo "$CREDS" | awk '{print $3}')"
+                            export AWS_ACCESS_KEY_ID="$(echo "$CREDS_JSON" | python3 -c 'import json,sys; print(json.load(sys.stdin)["Credentials"]["AccessKeyId"])')"
+                            export AWS_SECRET_ACCESS_KEY="$(echo "$CREDS_JSON" | python3 -c 'import json,sys; print(json.load(sys.stdin)["Credentials"]["SecretAccessKey"])')"
+                            export AWS_SESSION_TOKEN="$(echo "$CREDS_JSON" | python3 -c 'import json,sys; print(json.load(sys.stdin)["Credentials"]["SessionToken"])')"
 
                             INSTANCE_ID=$(aws ec2 run-instances \
                                 --image-id "${UAT_AMI_ID}" \
@@ -106,9 +107,17 @@ pipeline {
                                 --key-name "${UAT_KEY_NAME}" \
                                 --security-group-ids "${UAT_SECURITY_GROUP_ID}" \
                                 --subnet-id "${UAT_SUBNET_ID}" \
-                                --tag-specifications 'ResourceType=instance,Tags=[{Key=Name,Value=uat-${JOB_NAME}-${BUILD_NUMBER}},{Key=Environment,Value=UAT}]' \
                                 --query 'Instances[0].InstanceId' \
                                 --output text)
+
+                            TAG_NAME="uat-${JOB_NAME}-${BUILD_NUMBER}"
+                            TAG_NAME="${TAG_NAME//[^a-zA-Z0-9_.:/=+=@-]/-}"
+
+                            aws ec2 create-tags \
+                                --resources "${INSTANCE_ID}" \
+                                --tags \
+                                "Key=Name,Value=${TAG_NAME}" \
+                                "Key=Environment,Value=UAT"
 
                             echo "$INSTANCE_ID" > instance_id.txt
                             aws ec2 wait instance-status-ok --instance-ids "$INSTANCE_ID"
